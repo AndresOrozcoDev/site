@@ -18,30 +18,32 @@ const PASSWORD = "Teamo1006*";
 //    Para escribir una dedicatoria sobre una foto, rellena su "caption", por ejemplo:
 //      { type: "image", src: "assets/foto-1.jpeg", alt: "Recuerdo 1", caption: "Donde todo empezó" },
 const MEDIA = [
+  // --- Fotos ---
   { type: "image", src: "assets/foto-1.jpeg", alt: "Recuerdo 1", caption: "" },
   { type: "image", src: "assets/foto-2.jpeg", alt: "Recuerdo 2", caption: "" },
   { type: "image", src: "assets/foto-3.jpeg", alt: "Recuerdo 3", caption: "" },
   { type: "image", src: "assets/foto-4.jpeg", alt: "Recuerdo 4", caption: "" },
   { type: "image", src: "assets/foto-5.jpeg", alt: "Recuerdo 5", caption: "" },
-  { type: "video", src: "assets/video-1.mp4", alt: "Video 1", caption: "" },
   { type: "image", src: "assets/foto-6.jpeg", alt: "Recuerdo 6", caption: "" },
   { type: "image", src: "assets/foto-7.jpeg", alt: "Recuerdo 7", caption: "" },
   { type: "image", src: "assets/foto-8.jpeg", alt: "Recuerdo 8", caption: "" },
   { type: "image", src: "assets/foto-9.jpeg", alt: "Recuerdo 9", caption: "" },
   { type: "image", src: "assets/foto-10.jpeg", alt: "Recuerdo 10", caption: "" },
-  { type: "video", src: "assets/video-2.mp4", alt: "Video 2", caption: "" },
   { type: "image", src: "assets/foto-11.jpeg", alt: "Recuerdo 11", caption: "" },
   { type: "image", src: "assets/foto-12.jpeg", alt: "Recuerdo 12", caption: "" },
   { type: "image", src: "assets/foto-13.jpeg", alt: "Recuerdo 13", caption: "" },
   { type: "image", src: "assets/foto-14.jpeg", alt: "Recuerdo 14", caption: "" },
   { type: "image", src: "assets/foto-15.jpeg", alt: "Recuerdo 15", caption: "" },
-  { type: "video", src: "assets/video-3.mp4", alt: "Video 3", caption: "" },
   { type: "image", src: "assets/foto-16.jpeg", alt: "Recuerdo 16", caption: "" },
   { type: "image", src: "assets/foto-17.jpeg", alt: "Recuerdo 17", caption: "" },
   { type: "image", src: "assets/foto-18.jpeg", alt: "Recuerdo 18", caption: "" },
   { type: "image", src: "assets/foto-19.jpeg", alt: "Recuerdo 19", caption: "" },
   { type: "image", src: "assets/foto-20.jpeg", alt: "Recuerdo 20", caption: "" },
   { type: "image", src: "assets/foto-21.jpeg", alt: "Recuerdo 21", caption: "" },
+  // --- Videos (al final del carrusel) ---
+  { type: "video", src: "assets/video-1.mp4", alt: "Video 1", caption: "" },
+  { type: "video", src: "assets/video-2.mp4", alt: "Video 2", caption: "" },
+  { type: "video", src: "assets/video-3.mp4", alt: "Video 3", caption: "" },
 ];
 
 // 🎵 CANCIÓN dedicada. Reemplaza la ruta por el nombre real de tu .mp3 en /assets/.
@@ -57,6 +59,7 @@ const SONG = {
    ------------------------------------------------------------ */
 let currentSlide = 0;      // índice del recuerdo visible
 let autoplayTimer = null;  // temporizador del avance automático
+let songWasPlaying = false; // recuerda si la canción sonaba antes de un video
 const AUTOPLAY = true;     // pon false para desactivar el avance automático
 const AUTOPLAY_MS = 6000;  // milisegundos entre recuerdos (solo imágenes)
 
@@ -231,6 +234,7 @@ function createMediaElement(item) {
     el.playsInline = true;
     el.preload = "metadata";
     el.setAttribute("aria-label", item.alt || "Video del recuerdo");
+    el.addEventListener("ended", handleVideoEnded);
   } else {
     el = document.createElement("img");
     el.src = item.src;
@@ -311,6 +315,35 @@ function goToSlide(index) {
     dot.classList.toggle("is-active", i === currentSlide);
     dot.setAttribute("aria-selected", i === currentSlide ? "true" : "false");
   });
+
+  syncMediaPlayback();
+}
+
+// En un video: pausa la canción y lo reproduce solo. En una foto: reanuda la canción si estaba sonando.
+function syncMediaPlayback() {
+  const audio = document.getElementById("audio");
+  const item = MEDIA[currentSlide];
+  const slide = document.querySelectorAll(".slide")[currentSlide];
+  if (!slide) return;
+
+  if (item && item.type === "video") {
+    if (!audio.paused) {
+      songWasPlaying = true;
+      audio.pause();
+    }
+    const video = slide.querySelector("video");
+    // Si el navegador bloquea el autoplay, quedan los controles nativos para dar play.
+    if (video) video.play().catch(() => {});
+  } else if (songWasPlaying && audio.paused) {
+    audio.play().catch(() => {});
+    songWasPlaying = false;
+  }
+}
+
+// Al terminar un video, avanza al siguiente recuerdo (y reanuda la canción al llegar a una foto).
+function handleVideoEnded() {
+  nextSlide();
+  scheduleAutoplay();
 }
 
 // Avanza al siguiente recuerdo.

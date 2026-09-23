@@ -1,0 +1,47 @@
+========================================
+  COFRE DE RECUERDOS — Carpeta /assets/
+========================================
+
+Coloca aquí tus fotos, videos y la canción.
+Los nombres de archivo deben coincidir con los que aparecen en main.js
+(en las secciones MEDIA y SONG). Si cambias los nombres, edítalos también
+en main.js.
+
+--- ARCHIVOS QUE ESPERA main.js POR DEFECTO ---
+
+Fotos y videos (galería):
+  foto-1.jpg
+  foto-2.jpg
+  video-1.mp4
+  foto-3.jpg
+  foto-4.jpg
+
+Canción:
+  nuestra-cancion.mp3
+
+--- CÓMO AGREGAR O QUITAR RECUERDOS ---
+
+Abre main.js y edita el arreglo MEDIA. Cada recuerdo es una línea así:
+
+  { type: "image", src: "assets/foto-5.jpg", alt: "Descripción", caption: "Leyenda opcional" },
+
+  - type:    "image" para fotos, "video" para videos.
+  - src:     ruta del archivo (siempre empieza con "assets/").
+  - alt:     descripción breve (accesibilidad).
+  - caption: texto que aparece sobre la foto (puedes dejarlo vacío: "").
+
+--- CÓMO CAMBIAR LA CLAVE DEL COFRE ---
+
+En main.js, línea con:  const PASSWORD = "teamo";
+Cambia "teamo" por la clave que quieras.
+
+--- FORMATOS RECOMENDADOS ---
+
+  Fotos:    .jpg  o  .png     (idealmente < 2 MB cada una)
+  Videos:   .mp4  (códec H.264)
+  Canción:  .mp3
+
+--- CÓMO ABRIR LA PÁGINA ---
+
+Haz doble clic en index.html. Se abrirá en tu navegador.
+No necesitas internet salvo para las tipografías (se ven igual sin ellas).
